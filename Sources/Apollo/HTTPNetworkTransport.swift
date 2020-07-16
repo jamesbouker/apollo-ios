@@ -55,15 +55,17 @@ public protocol HTTPNetworkTransportRetryDelegate: HTTPNetworkTransportDelegate 
   ///
   /// - Parameters:
   ///   - networkTransport: The network transport which received the error
+  ///   - operation: The GraphQLOperation which generated the error
   ///   - error: The received error
   ///   - request: The URLRequest which generated the error
   ///   - response: [Optional] Any response received when the error was generated
   ///   - retryHandler: A closure indicating whether the operation should be retried. Asyncrhonous to allow for re-authentication or other async operations to complete.
-  func networkTransport(_ networkTransport: HTTPNetworkTransport,
-                        receivedError error: Error,
-                        for request: URLRequest,
-                        response: URLResponse?,
-                        retryHandler: @escaping (_ shouldRetry: Bool) -> Void)
+  func networkTransport<T: GraphQLOperation>(_ networkTransport: HTTPNetworkTransport,
+                                             operation: T,
+                                             receivedError error: Error,
+                                             for request: URLRequest,
+                                             response: URLResponse?,
+                                             retryHandler: @escaping (_ shouldRetry: Bool) -> Void)
 }
 
 // MARK: -
@@ -298,6 +300,7 @@ public class HTTPNetworkTransport {
 
     retrier.networkTransport(
       self,
+      operation: operation,
       receivedError: error,
       for: request,
       response: response,
